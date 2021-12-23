@@ -1,0 +1,7 @@
+Finished:
+ - 1
+ - 2
+
+Unfinished:
+ - All the others
+ - The final project (or however people say "práctica" in English)

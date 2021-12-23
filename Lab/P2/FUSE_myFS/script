@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# Universidad Complutense de Madrid
+# Sistemas Operativos
+# Author: Erik Karlgren Domercq
+# Script to check if the filesystem is working correctly
+
+function checkFile {
+    FILE_DIFF=`diff $MPOINT/$1 $TMP/$1`
+    if [ -z "$FILE_DIFF" ]
+    then
+        echo "Copy of $1 has been succesful"
+    else
+        echo "Copy of $1 has not been succesful"
+        echo $FILE_DIFF
+    fi
+}
+
+# Requires fs-fuse being executed
+MPOINT="./mount-point"
+TMP="tmp"
+SRC="src"
+FILE1="fuseLib.c"
+FILE2="myFS.c"
+FILE3="MyFileSystem.c"
+
+rm -R -f $TMP
+mkdir $TMP
+
+# PART 1 OF THE TEST: copying some files
+echo
+echo ">>> Part 1 of the test: copying"
+
+cp $SRC/$FILE1 $TMP -r
+cp $SRC/$FILE1 $MPOINT -r
+checkFile $FILE1
+
+cp $SRC/$FILE2 $TMP -r
+cp $SRC/$FILE2 $MPOINT -r
+checkFile $FILE2
+
+# PART 2 OF THE TEST: decreasing size of a file by 1 block
+echo
+echo ">>> Part 2 of the test: decrease size"
+truncate $TMP/$FILE1 -o -s -1
+truncate $MPOINT/$FILE1 -o -s -1
+checkFile $FILE1
+
+# PART 2 OF THE TEST: copying a 3rd file
+echo
+echo ">>> Part 3 of the test: copying a 3rd file"
+cp $SRC/$FILE3 $TMP -r
+cp $SRC/$FILE3 $MPOINT -r
+checkFile $FILE3
+
+# PART 4 OF THE TEST: increasing size of a file by 1 block
+echo
+echo ">>> Part 4 of the test: increase size"
+truncate $TMP/$FILE2 -o -s +1
+truncate $MPOINT/$FILE2 -o -s +1
+checkFile $FILE2
+
+echo
+echo ">>> Final check"
+./my-fsck virtual-disk
+
+rm -rf $TMP

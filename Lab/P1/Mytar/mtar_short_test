@@ -1,0 +1,23 @@
+#!/bin/bash
+TAR_FILE1="paquete.mtar"
+TAR_FILE2="nuevo.mtar"
+SOURCES_DIR="sources_tests"
+EXTRACTED_DIR="extracted_tests"
+HEX_VIEWER="hexyl"
+
+# Extraemos los ficheros del .mtar que nos da el profesor
+echo ">>> Extracting from $TAR_FILE1..."
+./mytar -x -f $TAR_FILE1 > /dev/null
+echo
+# Para comprobar si tendrá diferencias con otro .mtar creado a partir de los ficheros extraídos
+echo ">>> Creating $TAR_FILE2..."
+./mytar -c -f $TAR_FILE2 fichero1.txt fichero2.txt > /dev/null
+echo
+
+echo ">>> Differences between $TAR_FILE1 and $TAR_FILE2:"
+diff $TAR_FILE1 $TAR_FILE2 -a -y --suppress-common-lines
+
+$HEX_VIEWER $TAR_FILE1 > "hex1.txt"
+$HEX_VIEWER $TAR_FILE2 > "hex2.txt"
+echo ">>> Differences between $TAR_FILE1 and $TAR_FILE2 in hex code:"
+diff "hex1.txt" "hex2.txt"

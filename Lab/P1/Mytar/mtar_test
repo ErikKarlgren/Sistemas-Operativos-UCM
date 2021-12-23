@@ -1,0 +1,45 @@
+#!/bin/bash
+TAR_FILE1="ej1.mtar"
+TAR_FILE2="ej2.mtar"
+SOURCES_DIR="sources_tests"
+EXTRACTED_DIR="extracted_tests"
+HEX_VIEWER="hexyl"
+
+# Copiamos ficheros de test en la carpeta actual
+cp $SOURCES_DIR/test1.txt .
+cp $SOURCES_DIR/test2.txt .
+
+# Creamos un fichero .mtar con dichos ficheros
+./mytar -c -f $TAR_FILE1 test1.txt test2.txt > /dev/null
+# Y los extraemos del .mtar que acabamos de crear
+./mytar -x -f $TAR_FILE1 > /dev/null
+
+# Se generan así nuevos test1.txt y test2.txt, y los guardamos en otra carpeta
+rm -rf $EXTRACTED_DIR
+mkdir $EXTRACTED_DIR
+cp test1.txt $EXTRACTED_DIR
+cp test2.txt $EXTRACTED_DIR
+
+# Ahora comprobamos las diferencias entre los ficheros de test originales y los nuevos
+echo ">>> Differences for test1.txt:"
+diff -y --suppress-common-lines $SOURCES_DIR/test1.txt $EXTRACTED_DIR/test1.txt
+echo
+echo ">>> Differences for test2.txt:"
+diff -y --suppress-common-lines $SOURCES_DIR/test2.txt $EXTRACTED_DIR/test2.txt
+echo
+
+# Creamos un .mtar con los ficheros nuevos
+./mytar -c -f $TAR_FILE2 test1.txt test2.txt > /dev/null
+# Y vemos en qué se diferencia este segundo .mtar con el primero
+echo ">>> Differences between $TAR_FILE1 and $TAR_FILE2:"
+diff -a -y --suppress-common-lines $TAR_FILE1 $TAR_FILE2
+echo
+
+# Vemos también qué diferencias hay en la representación hexadecimal
+$HEX_VIEWER $TAR_FILE1 > "hex1.txt"
+$HEX_VIEWER $TAR_FILE2 > "hex2.txt"
+echo ">>> Differences between $TAR_FILE1 and $TAR_FILE2 in hex code:"
+diff "hex1.txt" "hex2.txt"
+
+rm -f test1.txt
+rm -f test2.txt

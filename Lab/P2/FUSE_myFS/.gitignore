@@ -1,0 +1,6 @@
+obj/
+fs-fuse
+mount-point/
+test/
+virtual-disk
+tmp/
